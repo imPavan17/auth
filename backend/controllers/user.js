@@ -75,6 +75,21 @@ const loginController = asyncHandler(async (req, res) => {
   }
 });
 
+/* 
+ @desc:  Get current user
+ @route: /api/users/me
+ @access: Private
+*/
+const getMeController = asyncHandler(async (req, res) => {
+  res.status(200);
+  // We have access to req.user, because of the auth middleware,
+  // In the auth middleware, we are setting req.user = User.find()
+  res.json({
+    id: req.user.id,
+    email: req.user.email,
+  });
+});
+
 // Generate Token
 // id - userId
 const generateToken = (id) => {
@@ -86,4 +101,5 @@ const generateToken = (id) => {
 module.exports = {
   registerController,
   loginController,
+  getMeController,
 };
