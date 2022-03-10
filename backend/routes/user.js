@@ -9,6 +9,6 @@ router.get("/", (req, res) => {
 
 router.post("/register", registerController);
 
-router.get("/login", loginController);
+router.post("/login", loginController);
 
 module.exports = router;

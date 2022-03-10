@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
 
@@ -32,13 +33,22 @@ const registerController = asyncHandler(async (req, res) => {
   const hashedPassword = await bcrypt.hash(password, salt);
 
   // Create user
-  const newUser = await User.create({ email, password: hashedPassword });
-
-  // 201 indicates success and something was created or has led to the creation of a resource.
-  res.status(201).json({
-    id: newUser.id,
-    email: newUser.email,
+  const newUser = await User.create({
+    email: email,
+    password: hashedPassword,
   });
+
+  if (newUser) {
+    // 201 indicates success and something was created or has led to the creation of a resource.
+    res.status(201).json({
+      id: newUser.id,
+      email: newUser.email,
+      token: generateToken(newUser.id),
+    });
+  } else {
+    res.status(400);
+    throw new Error("Invalid user data");
+  }
 });
 
 /* 
@@ -47,8 +57,31 @@ const registerController = asyncHandler(async (req, res) => {
  @access: Public
 */
 const loginController = asyncHandler(async (req, res) => {
-  res.send("Login");
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ where: { email } });
+
+  // Check user and passwords match
+  if (user && (await bcrypt.compare(password, user.password))) {
+    res.status(200).json({
+      id: user.id,
+      email: user.email,
+      token: generateToken(user.id),
+    });
+  } else {
+    // 401 indicates unauthorized
+    res.status(401);
+    throw new Error("Invalid credentials");
+  }
 });
+
+// Generate Token
+// id - userId
+const generateToken = (id) => {
+  return jwt.sign({ id }, "mysecret123", {
+    expiresIn: "30d",
+  });
+};
 
 module.exports = {
   registerController,

@@ -5,6 +5,7 @@ const errorHandler = (err, req, res, next) => {
   //   throw new Error("Please enter all fields"); <- err.message
   res.json({
     message: err.message,
+    stack: err.stack,
   });
 };
 
