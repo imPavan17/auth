@@ -5,8 +5,9 @@ exports.register = async (req, res) => {
 
   const user = await User.findOne({ where: { email } });
 
+  // Checking if user is already registered
   if (user) {
-    return res.send("User already registered!");
+    return res.json("User already registered!");
   }
 
   await User.create({ email, password });
