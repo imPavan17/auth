@@ -1,15 +1,18 @@
 const express = require("express");
-const bodyParser = require("body-parser");
+
+const sequelize = require("./config/db");
+const UserRoutes = require("./routes/user");
+const errorHandler = require("./middlewares/errorHandler");
 
 const app = express();
-const sequelize = require("./db");
-const UserRoutes = require("./routes/user");
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // Routes
 app.use("/api/users", UserRoutes);
+
+app.use(errorHandler);
 
 sequelize
   .sync()
