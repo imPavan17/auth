@@ -8,6 +8,7 @@ const PrivateRoute = () => {
   if (checkingStatus) {
     return <Spinner />;
   }
+  // Outlet - is basically allows us to return child elements
   return loggedIn ? <Outlet /> : <Navigate to="/login" />;
 };
 
