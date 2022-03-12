@@ -1,4 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { register, reset } from "../store/authSlice";
+import Spinner from "../components/Spinner";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -8,6 +12,23 @@ function Register() {
   });
 
   const { email, password, password2 } = formData;
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user, isLoading, isError, isSuccess, message } = useSelector(
+    (state) => state.auth
+  );
+
+  useEffect(() => {
+    if (isError) {
+      alert(message);
+    }
+
+    if (isSuccess || user) {
+      navigate("/");
+    }
+
+    dispatch(reset());
+  }, [dispatch, isError, isSuccess, message, navigate, user]);
 
   const onChange = (e) => {
     setFormData((prevState) => {
@@ -23,8 +44,18 @@ function Register() {
 
     if (password !== password2) {
       alert("Passwords do not match");
+    } else {
+      const userData = {
+        email,
+        password,
+      };
+      dispatch(register(userData));
     }
   };
+
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   return (
     <>
