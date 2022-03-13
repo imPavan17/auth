@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { validationResult } = require("express-validator/check");
 
 const User = require("../models/user");
 
@@ -11,6 +12,31 @@ const User = require("../models/user");
 */
 const registerController = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
+
+  /* validationResult() - A function that allows
+      us to gather all the errors, prior validation
+      middleware { check("email").isEmail() } might have
+      thrown or stored.
+  */
+
+  const errors = validationResult(req);
+  /* Example errors.array()
+    errors: [
+      {
+        value: 'rama',
+        msg: 'Please enter a valid email', // Instead of "Invalid value" which is default
+        param: 'email',
+        location: 'body'
+      }
+    ] 
+  */
+
+  // isEmpty() will return true/false whether we got errors or not
+  if (!errors.isEmpty()) {
+    // 422 indicates validation failure
+    res.status(422);
+    throw new Error("Validation Error");
+  }
 
   // Validation
   if (!email || !password) {
